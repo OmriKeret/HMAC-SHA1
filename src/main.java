@@ -4,14 +4,14 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.PrintWriter;
 import java.util.Base64;
-import java.util.Base64.Encoder;
 import HMAC.HMACCommands;
 import HMAC.HmacAlgo;
 
 public class main {
 
     private final static String USAGE_MESSAGE = "USAGE: HMAC.Console.exe <input file> <digest file> <key file> <compute | verify>";
-
+    private final static String Compute = "compute";
+    private final static String Verify = "verify";
     public static void Main(String[] args)
     {
         try
@@ -27,7 +27,7 @@ public class main {
                 String keyFilePath = args[2];
                 String commandString = args[3];
 
-                HmacAlgo hmacUtil = new HmacAlgo(ReadTextFromFile(keyFilePath));
+                HmacAlgo hmacUtil = new HmacAlgo (ReadTextFromFile(keyFilePath));
                 String message = ReadTextFromFile(inputTextFilePath);
                 switch (ParseCommand(commandString))
                 {
@@ -35,7 +35,11 @@ public class main {
                         WriteToDigestFile(digestFilePath, hmacUtil.Compute(message));
                         break;
                     case Verify:
-                        System.out.println(WriteLine(hmacUtil.Verifty(message, ReadFromDigestFile(digestFilePath)) ? "ACCEPT" : "REJECT"));
+                       if (hmacUtil.Verifty(message, ReadFromDigestFile(digestFilePath))) { 
+                         System.out.println("ACCEPT");
+                     } else { 
+                    	 System.out.println("REJECT");
+                     }
                         break;
                     default:
                         ShowUsageMessage();
@@ -91,16 +95,16 @@ public class main {
        // File.WriteAllText(digestFilePath, Convert.ToBase64String(mac));
     }
 
-    private static HMACCommands ParseCommand(String commandString) throws Exception
+    private static String ParseCommand(String commandString) throws Exception
     {
         if (commandString.toLowerCase().equals("compute"))
         {
-            return HMACCommands.Compute;
+            return Compute;
         }
 
         if (commandString.toLowerCase().equals("verify"))
         {
-            return HMACCommands.Verify;
+            return Verify;
         }
 
         throw new Exception("Command " + commandString + " is not supported.");

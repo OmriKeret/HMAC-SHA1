@@ -19,7 +19,7 @@ public class HmacAlgo {
     private byte[] ipad;
     private byte[] opad;
 
-    public void HMACAlgorithm(String key)
+	public HmacAlgo (String key)
     {
         _SHA1HashAlgo = new SHA1Algo();
 
