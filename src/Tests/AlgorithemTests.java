@@ -1,9 +1,13 @@
 package Tests;
 
+import static org.junit.Assert.*;
+
 import java.nio.charset.StandardCharsets;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+
+import org.junit.Test;
 
 import com.sun.crypto.provider.HmacSHA1;
 
@@ -18,6 +22,8 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 public class AlgorithemTests {
 	private static final String HMAC_SHA1_ALGORITHM = "HmacSHA1";
+	
+				@Test
 		        public void TestHMACAlgorithm() throws InvalidKeyException, NoSuchAlgorithmException
 		        {
 		            final String keyString = "12345678910111213141516171819202122232425262728293031323334353637383940";
@@ -25,7 +31,7 @@ public class AlgorithemTests {
 		            String result;
 		            byte[] keyBytes = keyString.getBytes(StandardCharsets.US_ASCII);
 		            byte[] textBytes = mesage.getBytes(StandardCharsets.US_ASCII);
-
+		            
 		            //HmacSHA1 hmac = new HmacSHA1();
 
 			         // get an hmac_sha1 key from the raw key bytes
@@ -49,6 +55,7 @@ public class AlgorithemTests {
 		             System.out.println("----------------------------------------");
 		             System.out.println("Theirs compute: ");
 		             System.out.println(rawHmac);
+		             assertEquals(mac2, rawHmac);
 //		            Assert.IsTrue(mac1.SequenceEqual(mac2));
 //		            Assert.IsTrue(hmacAlgorithm.Verifty(mesage, mac1));
 //		            Assert.IsTrue(hmacAlgorithm.Verifty(mesage, mac2));
