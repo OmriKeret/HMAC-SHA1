@@ -28,7 +28,6 @@ public class SHA1Algo {
         for (int passCntr = 0; passCntr < passesReq; passCntr++) {
             System.arraycopy(paddedMsg, 64 * passCntr, chunk, 0, 64);
             resultsArray = HandleChunk(resultsArray, chunk);
-            
         }
         
         for (int num : resultsArray) {
@@ -130,6 +129,7 @@ public class SHA1Algo {
         //int[] extendedBitArray = new int[80];
 
         int[] extendedBitArray = new int[80];
+        
         for (int outer = 0; outer < 16; outer++) {
             int temp = 0;
             for (int inner = 0; inner < 4; inner++) {

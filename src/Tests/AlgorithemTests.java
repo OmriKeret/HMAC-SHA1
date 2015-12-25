@@ -12,8 +12,10 @@ import org.junit.Test;
 import com.sun.crypto.provider.HmacSHA1;
 
 import HMAC.HmacAlgo;
+import SHA1.SHA1Algo;
 
 import java.security.InvalidKeyException;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.util.Base64;
@@ -50,27 +52,68 @@ public class AlgorithemTests {
 			         HmacAlgo hmacAlgorithm = new HmacAlgo(keyString);
 		             byte[] mac2 = hmacAlgorithm.Compute(mesage);
 
-		             System.out.println("Our compute: ");
-		             System.out.println(mac2);
-		             System.out.println("----------------------------------------");
-		             System.out.println("Theirs compute: ");
-		             System.out.println(rawHmac);
+//		             System.out.println("Our compute: ");
+//		             System.out.println(mac2);
+//		             System.out.println("----------------------------------------");
+//		             System.out.println("Theirs compute: ");
+//		             System.out.println(rawHmac);
 		             assertEquals(mac2, rawHmac);
 //		            Assert.IsTrue(mac1.SequenceEqual(mac2));
 //		            Assert.IsTrue(hmacAlgorithm.Verifty(mesage, mac1));
 //		            Assert.IsTrue(hmacAlgorithm.Verifty(mesage, mac2));
 		        }
 
-		        
-		        public void TestSHA1Algorithm()
+				@Test
+		        public void TestSHA1Algorithm() throws NoSuchAlgorithmException
 		        {
-//		            const string mesage = "The quick brown fox jumps over the lazy dog";
-//
-//		            byte[] messageBytes = Encoding.ASCII.GetBytes(mesage);
-//
-//		            var hash1 = new SHA1Managed().ComputeHash(messageBytes);
-//		            var hash2 = new SHA1Algorithm().ComputeHash(messageBytes);
-//
-//		            Assert.IsTrue(hash1.SequenceEqual(hash2));
+		            final String mesage = "The quick brown fox jumps over the lazy dog";
+
+		            byte[] messageBytes = mesage.getBytes(StandardCharsets.US_ASCII); 
+		            MessageDigest md = MessageDigest.getInstance("SHA1");
+		            md.update(messageBytes);
+		            byte[] hash1 = md.digest();
+		            byte[] hash2 = new SHA1Algo().ComputeHash(messageBytes);
+		            
+		            System.out.println("Our compute: ");
+		             System.out.println(hash2);
+		             System.out.println("----------------------------------------");
+		             System.out.println("Theirs compute: ");
+		             System.out.println(hash1);
+		             System.out.println("----------------------------------------"); 
+		             System.out.println("----------------------------------------");
+		             md = MessageDigest.getInstance("SHA1");
+		             System.out.println("Message digest object info: ");
+		             System.out.println("   Algorithm = "+md.getAlgorithm());
+		             System.out.println("   Provider = "+md.getProvider());
+		             System.out.println("   toString = "+md.toString());
+
+		             String input = "";
+		          	 byte[] output = md.digest();
+		   
+
+		             input = "abc";
+		             md.update(input.getBytes()); 
+		          	 output = md.digest();
+		             System.out.println();
+		             System.out.println("SHA1(\""+input+"\") =");
+		             System.out.println("   "+bytesToHex(output));
+		             
+		             System.out.println("your algo brings:");
+		             System.out.println("   "+bytesToHex(new SHA1Algo().ComputeHash(input.getBytes())));
+		             
+
+		           // assertEquals(hash1, hash2);
 		        }
+				
+				
+				public static String bytesToHex(byte[] b) {
+				      char hexDigit[] = {'0', '1', '2', '3', '4', '5', '6', '7',
+				                         '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+				      StringBuffer buf = new StringBuffer();
+				      for (int j=0; j<b.length; j++) {
+				         buf.append(hexDigit[(b[j] >> 4) & 0x0f]);
+				         buf.append(hexDigit[b[j] & 0x0f]);
+				      }
+				      return buf.toString();
+				   }
 }
