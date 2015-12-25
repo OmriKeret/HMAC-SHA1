@@ -1,36 +1,69 @@
 package Tests;
 
+import java.nio.charset.StandardCharsets;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
+import com.sun.crypto.provider.HmacSHA1;
+
+import HMAC.HmacAlgo;
+
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SignatureException;
+import java.util.Base64;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 public class AlgorithemTests {
-	 [TestMethod]
-		        public void TestHMACAlgorithm()
+	private static final String HMAC_SHA1_ALGORITHM = "HmacSHA1";
+		        public void TestHMACAlgorithm() throws InvalidKeyException, NoSuchAlgorithmException
 		        {
-		            const string keyString = "12345678910111213141516171819202122232425262728293031323334353637383940";
-		            const string mesage = "The quick brown fox jumps over the lazy dog";
+		            final String keyString = "12345678910111213141516171819202122232425262728293031323334353637383940";
+		            final String mesage = "The quick brown fox jumps over the lazy dog";
+		            String result;
+		            byte[] keyBytes = keyString.getBytes(StandardCharsets.US_ASCII);
+		            byte[] textBytes = mesage.getBytes(StandardCharsets.US_ASCII);
 
-		            byte[] keyBytes = Encoding.ASCII.GetBytes(keyString);
-		            byte[] textBytes = Encoding.ASCII.GetBytes(mesage);
+		            //HmacSHA1 hmac = new HmacSHA1();
 
-		            var hmac = new HMACSHA1(keyBytes);
-		            byte[] mac1 = hmac.ComputeHash(textBytes);
+			         // get an hmac_sha1 key from the raw key bytes
+			         SecretKeySpec signingKey = new SecretKeySpec(keyBytes, HMAC_SHA1_ALGORITHM);
+	
+			         // get an hmac_sha1 Mac instance and initialize with the signing key
+			         Mac mac = Mac.getInstance(HMAC_SHA1_ALGORITHM);
+			         mac.init(signingKey);
+	
+			         // compute the hmac on input data bytes
+			         byte[] rawHmac = mac.doFinal(mesage.getBytes());
+	
+			         // base64-encode the hmac
+			         result = Base64.getEncoder().encodeToString(rawHmac);
 
-		            var hmacAlgorithm = new HMACAlgorithm(keyString);
-		            byte[] mac2 = hmacAlgorithm.Compute(mesage);
-w
-		            Assert.IsTrue(mac1.SequenceEqual(mac2));
-		            Assert.IsTrue(hmacAlgorithm.Verifty(mesage, mac1));
-		            Assert.IsTrue(hmacAlgorithm.Verifty(mesage, mac2));
+			         HmacAlgo hmacAlgorithm = new HmacAlgo(keyString);
+		             byte[] mac2 = hmacAlgorithm.Compute(mesage);
+
+		             System.out.println("Our compute: ");
+		             System.out.println(mac2);
+		             System.out.println("----------------------------------------");
+		             System.out.println("Theirs compute: ");
+		             System.out.println(rawHmac);
+//		            Assert.IsTrue(mac1.SequenceEqual(mac2));
+//		            Assert.IsTrue(hmacAlgorithm.Verifty(mesage, mac1));
+//		            Assert.IsTrue(hmacAlgorithm.Verifty(mesage, mac2));
 		        }
 
-		        [TestMethod]
+		        
 		        public void TestSHA1Algorithm()
 		        {
-		            const string mesage = "The quick brown fox jumps over the lazy dog";
-
-		            byte[] messageBytes = Encoding.ASCII.GetBytes(mesage);
-
-		            var hash1 = new SHA1Managed().ComputeHash(messageBytes);
-		            var hash2 = new SHA1Algorithm().ComputeHash(messageBytes);
-
-		            Assert.IsTrue(hash1.SequenceEqual(hash2));
+//		            const string mesage = "The quick brown fox jumps over the lazy dog";
+//
+//		            byte[] messageBytes = Encoding.ASCII.GetBytes(mesage);
+//
+//		            var hash1 = new SHA1Managed().ComputeHash(messageBytes);
+//		            var hash2 = new SHA1Algorithm().ComputeHash(messageBytes);
+//
+//		            Assert.IsTrue(hash1.SequenceEqual(hash2));
 		        }
 }
