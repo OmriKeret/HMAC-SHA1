@@ -1,68 +1,104 @@
 package HMAC;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+
+import SHA1.SHA1Algo;
+
 public class HmacAlgo {
 
+    private final byte INNER_PAD = 0x36;
+    private final byte OUTER_PAD = 0x5c;
+    static final int SHA1_BLOCK_SIZE = 64;
+    static final String Compute = "Compute";
+    static final String Verify = "Verify";
+    
+    private SHA1Algo _SHA1HashAlgo;
 
-    private const byte INNER_PAD = 0x36;
-    private const byte OUTER_PAD = 0x5c;
-    private const int SHA1_BLOCK_SIZE = 64;
+    private byte[] keyArray;
+    private byte[] ipad;
+    private byte[] opad;
 
-    private readonly SHA1Algorithm _SHA1HashAlgorithm;
-
-    private byte[] _keyBuffer;
-    private readonly byte[] _keyXorInnerPad;
-    private readonly byte[] _keyXorOuterPad;
-
-    public HMACAlgorithm(String key)
+    public void HMACAlgorithm(String key)
     {
-        _SHA1HashAlgorithm = new SHA1Algorithm();
+        _SHA1HashAlgo = new SHA1Algo();
 
-        _keyBuffer = HandleKey(GetASCIIBytes(key)); // Step 1-3
-        _keyXorInnerPad = _keyBuffer.XOR(ByteArrayUtils.CreatePaddingBuffer(INNER_PAD, SHA1_BLOCK_SIZE)); // Step 4
-        _keyXorOuterPad = _keyBuffer.XOR(ByteArrayUtils.CreatePaddingBuffer(OUTER_PAD, SHA1_BLOCK_SIZE)); // Step 7
+        keyArray = HandleKey(GetASCIIBytes(key)); // Step 1-3
+        // GET INNER AND OUTER PAD
+	        ipad = getPad(keyArray, INNER_PAD);
+	        opad = getPad(keyArray, OUTER_PAD);
+		
+     //   ipad = keyArray.XOR(ByteArrayUtils.CreatePaddingBuffer(INNER_PAD, SHA1_BLOCK_SIZE)); // Step 4
+      //  opad = keyArray.XOR(ByteArrayUtils.CreatePaddingBuffer(OUTER_PAD, SHA1_BLOCK_SIZE)); // Step 7
     }
 
-    private static byte[] GetASCIIBytes(string text)
+    private static byte[] getPad(byte[] keyArray, byte pad){
+    	byte[] resultPad = new byte[SHA1_BLOCK_SIZE];
+		for (int j = 0; j < resultPad.length; j++) {
+			resultPad[j] = (byte) (((int) keyArray[j]) ^ ((int) pad));
+		}
+    	return resultPad;
+    }
+    
+    private static byte[] GetASCIIBytes(String str)
     {
-        return System.Text.Encoding.ASCII.GetBytes(text);
+    	byte[] text = str.getBytes(StandardCharsets.US_ASCII);
+        return text;
     }
 
-    public byte[] Compute(string message)
+    public byte[] Compute(String message)
     {
         byte[] textBuffer = GetASCIIBytes(message);
 
-        var keyXorInnerPadAndText = _keyXorInnerPad.Concat(textBuffer); // Step 5
+        byte[] keyXorInnerPadAndText = new byte[ipad.length + textBuffer.length];
+        System.arraycopy(ipad, 0, keyXorInnerPadAndText, 0, ipad.length);
+        System.arraycopy(textBuffer, 0, keyXorInnerPadAndText, ipad.length, textBuffer.length);
+        
+  //      byte[]  keyXorInnerPadAndText = ipad.Concat(textBuffer); // Step 5
 
-        var keyXorInnerPadAndTextHahed = Hash(keyXorInnerPadAndText); // Step 6
+        byte[] keyXorInnerPadAndTextHahed = Hash(keyXorInnerPadAndText); // Step 6
 
-        var keyXorOuterPadAndKeyXorInnerpadAndTextHahed = _keyXorOuterPad.Concat(keyXorInnerPadAndTextHahed); // Step 8
+        byte[] keyXorOuterPadAndKeyXorInnerpadAndTextHahed = new byte[opad.length + keyXorInnerPadAndTextHahed.length];
+        System.arraycopy(opad, 0, keyXorOuterPadAndKeyXorInnerpadAndTextHahed, 0, opad.length);
+        System.arraycopy(keyXorInnerPadAndTextHahed, 0, keyXorOuterPadAndKeyXorInnerpadAndTextHahed, opad.length, keyXorInnerPadAndTextHahed.length);
+        
+        //byte[] keyXorOuterPadAndKeyXorInnerpadAndTextHahed = opad.Concat(keyXorInnerPadAndTextHahed); // Step 8
 
-        var mac = Hash(keyXorOuterPadAndKeyXorInnerpadAndTextHahed); // Step 9
+        byte[] mac = Hash(keyXorOuterPadAndKeyXorInnerpadAndTextHahed); // Step 9
 
         return mac;
     }
 
-    public bool Verifty(string message, byte[] macToVerify)
+    public Boolean Verifty(String message, byte[] macToVerify)
     {
-        return macToVerify.SequenceEqual(Compute(message));
+    	return Arrays.equals(macToVerify, Compute(message));
+        // return macToVerify.SequenceEqual(Compute(message));
     }
     
     private byte[] HandleKey(byte[] inputKeyBuffer)
     {
         byte[] keyBuffer = null;
 
-        if (inputKeyBuffer.Length == SHA1_BLOCK_SIZE) // Step 1
+        if (inputKeyBuffer.length == SHA1_BLOCK_SIZE) // Step 1
         {
             keyBuffer = inputKeyBuffer;
         }
-        else if (inputKeyBuffer.Length > SHA1_BLOCK_SIZE) // Step 2
+        else if (inputKeyBuffer.length > SHA1_BLOCK_SIZE) // Step 2
         {
-            var hashedKeyBuffer = Hash(inputKeyBuffer);
-            keyBuffer = hashedKeyBuffer.Pad(0, SHA1_BLOCK_SIZE - hashedKeyBuffer.Length);
+        	byte[] hashedKeyBuffer = Hash(inputKeyBuffer);
+        	keyBuffer = new byte[20];
+        	keyBuffer = hashedKeyBuffer;
+        
+        	//   keyBuffer = hashedKeyBuffer.Pad(0, SHA1_BLOCK_SIZE - hashedKeyBuffer.length);
         }
-        else if (inputKeyBuffer.Length < SHA1_BLOCK_SIZE) // Step 3
-        {
-            keyBuffer = inputKeyBuffer.Pad(0, SHA1_BLOCK_SIZE - inputKeyBuffer.Length);
+        else if (inputKeyBuffer.length < SHA1_BLOCK_SIZE) // Step 3
+        {      	
+    			byte[] tmpKey = new byte[SHA1_BLOCK_SIZE];
+    			Arrays.fill(tmpKey, (byte) 0);
+    			System.arraycopy(inputKeyBuffer, 0, tmpKey, 0, inputKeyBuffer.length);
+    			keyBuffer = new byte[SHA1_BLOCK_SIZE];
+    			keyBuffer = tmpKey;
+           // keyBuffer = inputKeyBuffer.Pad(0, SHA1_BLOCK_SIZE - inputKeyBuffer.length);
         }
 
         return keyBuffer;
@@ -70,6 +106,6 @@ public class HmacAlgo {
 
     private byte[] Hash(byte[] bufferToHash)
     {
-        return _SHA1HashAlgorithm.ComputeHash(bufferToHash);
+        return _SHA1HashAlgo.ComputeHash(bufferToHash);
     }
 }
