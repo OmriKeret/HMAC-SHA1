@@ -3,6 +3,7 @@ package HMAC;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
+import ArrayUtils.ByteArrayUtils;
 import SHA1.SHA1Algo;
 
 public class HmacAlgo {
@@ -25,11 +26,11 @@ public class HmacAlgo {
 
         keyArray = HandleKey(GetASCIIBytes(key)); // Step 1-3
         // GET INNER AND OUTER PAD
-	        ipad = getPad(keyArray, INNER_PAD);
-	        opad = getPad(keyArray, OUTER_PAD);
+	      //  ipad = getPad(keyArray, INNER_PAD);
+	       // opad = getPad(keyArray, OUTER_PAD);
 		
-     //   ipad = keyArray.XOR(ByteArrayUtils.CreatePaddingBuffer(INNER_PAD, SHA1_BLOCK_SIZE)); // Step 4
-      //  opad = keyArray.XOR(ByteArrayUtils.CreatePaddingBuffer(OUTER_PAD, SHA1_BLOCK_SIZE)); // Step 7
+        ipad = ByteArrayUtils.XOR(keyArray, ByteArrayUtils.CreatePaddingBuffer(INNER_PAD, SHA1_BLOCK_SIZE)); // Step 4
+        opad = ByteArrayUtils.XOR(keyArray, ByteArrayUtils.CreatePaddingBuffer(OUTER_PAD, SHA1_BLOCK_SIZE)); // Step 7
     }
 
     private static byte[] getPad(byte[] keyArray, byte pad){
