@@ -42,12 +42,12 @@ public class ByteArrayUtils {
           return pading;
       }
 
-   //   public static Iterable<byte[]> Chunk(Iterable<Byte> source, int chunkSize)
+    //  public static byte[] Chunk(Iterable<Byte> source, int chunkSize)
      // {
-       //   while (source.Aany())
-         // {
-           //   yield return source.Take(chunkSize).ToArray();
-             // source = source.Skip(chunkSize);
+      //    while (source.Aany())
+       //   {
+        //      yield return source.Take(chunkSize).ToArray();
+         //     source = source.Skip(chunkSize);
           //}
-     // }
+      //}
 }
