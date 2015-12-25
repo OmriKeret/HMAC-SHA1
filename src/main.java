@@ -1,33 +1,41 @@
-
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.PrintWriter;
+import java.util.Base64;
+import java.util.Base64.Encoder;
+import HMAC.HMACCommands;
+import HMAC.HmacAlgo;
 
 public class main {
 
-    private const string USAGE_MESSAGE = "USAGE: HMAC.Console.exe <input file> <digest file> <key file> <compute | verify>";
+    private final static String USAGE_MESSAGE = "USAGE: HMAC.Console.exe <input file> <digest file> <key file> <compute | verify>";
 
-    public static void Main(string[] args)
+    public static void Main(String[] args)
     {
         try
         {
-            if (args.Length != 4)
+            if (args.length != 4)
             {
                 ShowUsageMessage();
             }
             else
             {
-                var inputTextFilePath = args[0];
-                var digestFilePath = args[1];
-                var keyFilePath = args[2];
-                var commandString = args[3];
+                String inputTextFilePath = args[0];
+                String digestFilePath = args[1];
+                String keyFilePath = args[2];
+                String commandString = args[3];
 
-                var hmacUtil = new HMACAlgorithm(ReadTextFromFile(keyFilePath));
-                string message = ReadTextFromFile(inputTextFilePath);
+                HmacAlgo hmacUtil = new HmacAlgo(ReadTextFromFile(keyFilePath));
+                String message = ReadTextFromFile(inputTextFilePath);
                 switch (ParseCommand(commandString))
                 {
-                    case HMACCommand.Compute:
+                    case Compute:
                         WriteToDigestFile(digestFilePath, hmacUtil.Compute(message));
                         break;
-                    case HMACCommand.Verify:
-                        System.Console.WriteLine(hmacUtil.Verifty(message, ReadFromDigestFile(digestFilePath)) ? "ACCEPT" : "REJECT");
+                    case Verify:
+                        System.out.println(WriteLine(hmacUtil.Verifty(message, ReadFromDigestFile(digestFilePath)) ? "ACCEPT" : "REJECT"));
                         break;
                     default:
                         ShowUsageMessage();
@@ -37,54 +45,64 @@ public class main {
         }
         catch (Exception ex)
         {
-            System.Console.WriteLine(ex.Message);
+        	System.out.println(ex.getMessage());
         }
     }
 
     private static void ShowUsageMessage()
     {
-        System.Console.WriteLine(USAGE_MESSAGE);
+    	System.out.println(USAGE_MESSAGE);
     }
 
-    private static string ReadTextFromFile(string filePath)
+    private static String ReadTextFromFile(String filePath) throws Exception
     {
         try
         {
-            if (!File.Exists(filePath))
+        	File f = new File(filePath);
+        	StringBuilder stringResult = new StringBuilder();
+        	@SuppressWarnings("resource")
+			BufferedReader reader = new BufferedReader(new FileReader(f));
+        	String line = "";
+            if (!f.exists())
             {
-                throw new ArgumentException("Could not read file: " + filePath);
+                throw new Exception("Could not read file: " + filePath);
             }
-
-            return File.ReadAllText(filePath);
+            while ((line = reader.readLine()) != null) {
+            	stringResult.append(line);
+            }
+            return stringResult.toString();
         }
-        catch (Exception)
+        catch (Exception e)
         {
-            throw new ArgumentException("Could not read file: " + filePath);
+            throw new Exception("Could not read file: " + filePath);
         }
     }
 
-    private static byte[] ReadFromDigestFile(string digestFilePath)
+    private static byte[] ReadFromDigestFile(String digestFilePath) throws Exception
     {
-        return Convert.FromBase64String(ReadTextFromFile(digestFilePath));
+    	return Base64.getDecoder().decode(ReadTextFromFile(digestFilePath));
+        //return Convert.FromBase64String(ReadTextFromFile(digestFilePath));
     }
 
-    private static void WriteToDigestFile(string digestFilePath, byte[] mac)
+    private static void WriteToDigestFile(String digestFilePath, byte[] mac) throws FileNotFoundException
     {
-        File.WriteAllText(digestFilePath, Convert.ToBase64String(mac));
+    	PrintWriter out = new PrintWriter(digestFilePath);
+    	out.print(Base64.getEncoder().encodeToString(mac));
+       // File.WriteAllText(digestFilePath, Convert.ToBase64String(mac));
     }
 
-    private static HMACCommand ParseCommand(string commandString)
+    private static HMACCommands ParseCommand(String commandString) throws Exception
     {
-        if (commandString.ToLower().Equals("compute"))
+        if (commandString.toLowerCase().equals("compute"))
         {
-            return HMACCommand.Compute;
+            return HMACCommands.Compute;
         }
 
-        if (commandString.ToLower().Equals("verify"))
+        if (commandString.toLowerCase().equals("verify"))
         {
-            return HMACCommand.Verify;
+            return HMACCommands.Verify;
         }
 
-        throw new ArgumentException("Command " + commandString + " is not supported.");
+        throw new Exception("Command " + commandString + " is not supported.");
     }
 }

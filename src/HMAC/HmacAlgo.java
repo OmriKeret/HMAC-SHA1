@@ -13,7 +13,7 @@ public class HmacAlgo {
     private readonly byte[] _keyXorInnerPad;
     private readonly byte[] _keyXorOuterPad;
 
-    public HMACAlgorithm(string key)
+    public HMACAlgorithm(String key)
     {
         _SHA1HashAlgorithm = new SHA1Algorithm();
 

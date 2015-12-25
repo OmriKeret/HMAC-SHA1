@@ -15,7 +15,7 @@ public class AlgorithemTests {
 
 		            var hmacAlgorithm = new HMACAlgorithm(keyString);
 		            byte[] mac2 = hmacAlgorithm.Compute(mesage);
-
+w
 		            Assert.IsTrue(mac1.SequenceEqual(mac2));
 		            Assert.IsTrue(hmacAlgorithm.Verifty(mesage, mac1));
 		            Assert.IsTrue(hmacAlgorithm.Verifty(mesage, mac2));
