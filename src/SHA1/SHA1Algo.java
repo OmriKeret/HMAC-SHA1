@@ -2,13 +2,13 @@ package SHA1;
 
 public class SHA1Algo {
 
-    private const int BLOCK_SIZE_IN_BYTES = 64;
-    private const int LONG_SIZE_IN_BYTES = 8;
-    private const int BYTE_SIZE = 8;
+    private final int BLOCK_SIZE_IN_BYTES = 64;
+    private final int LONG_SIZE_IN_BYTES = 8;
+    private final int BYTE_SIZE = 8;
     
     public byte[] ComputeHash(byte[] message)
     {
-        var resultsArray = new uint[] { 0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0 };
+        int[] resultsArray = new int[] { 0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0 };
 
         return PrePocessing(message).Chunk(BLOCK_SIZE_IN_BYTES)
                                     .Aggregate(resultsArray, HandleChunk)
@@ -18,8 +18,8 @@ public class SHA1Algo {
 
     private IEnumerable<byte> PrePocessing(byte[] message)
     {
-        long messageLenght = message.LongLength;
-        long messageLenghtInBits = messageLenght * BYTE_SIZE;
+        int messageLenght = message.length;
+        int messageLenghtInBits = messageLenght * BYTE_SIZE;
         int numOfZeroToAppend = (BLOCK_SIZE_IN_BYTES - LONG_SIZE_IN_BYTES) - ((int)(messageLenght + 1) % BLOCK_SIZE_IN_BYTES);
 
         return message.Concat(new byte[] { 0x80 })
@@ -27,20 +27,20 @@ public class SHA1Algo {
                       .Concat(EndianUtils.ConvertLongToByteArrayChangeEndian(messageLenghtInBits));
     }
 
-    private uint[] HandleChunk(uint[] currentResults, byte[] chunk)
+    private int[] HandleChunk(int[] currentResults, byte[] chunk)
     {
-        uint[] extendedArray = ExtendedChunkAndConvertToUintArray(chunk);
+    	int[] extendedArray = ExtendedChunkAndConvertToUintArray(chunk);
 
-        uint a = currentResults[0];
-        uint b = currentResults[1];
-        uint c = currentResults[2];
-        uint d = currentResults[3];
-        uint e = currentResults[4];
+    	int a = currentResults[0];
+    	int b = currentResults[1];
+    	int c = currentResults[2];
+    	int d = currentResults[3];
+    	int e = currentResults[4];
 
         for (int i = 0; i <= 79; i++)
         {
-            uint f;
-            uint k;
+        	int f;
+        	int k;
             if (0 <= i && i <= 19)
             {
                 f = (b & c) | ((~b) & d);
@@ -62,7 +62,7 @@ public class SHA1Algo {
                 k = 0xCA62C1D6;
             }
 
-            uint temp = LeftRotate(a, 5) + f + e + k + extendedArray[i];
+            int temp = LeftRotate(a, 5) + f + e + k + extendedArray[i];
             e = d;
             d = c;
             c = LeftRotate(b, 30);
@@ -79,7 +79,7 @@ public class SHA1Algo {
         return currentResults;
     }
 
-    private uint[] ExtendedChunkAndConvertToUintArray(IEnumerable<byte> chunk)
+    private int[] ExtendedChunkAndConvertToUintArray(IEnumerable<byte> chunk)
     {
         var extendedBitArray = new uint[80];
         var chunkAsBigEndianUintArray = chunk.Chunk(4)
@@ -96,7 +96,7 @@ public class SHA1Algo {
         return extendedBitArray;
     }
 
-    private uint LeftRotate(uint word, int numOfBits)
+    private int LeftRotate(int word, int numOfBits)
     {
         return word << numOfBits | word >> (32 - numOfBits);
     }
