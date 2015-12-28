@@ -10,22 +10,31 @@ public class ByteArrayUtils {
           
       }
 
-      public static byte[] XOR(byte[] buffer1, byte[] buffer2)
-      {
-    	  byte[] bigBuffer = buffer1.length < buffer2.length ? buffer2 : buffer1;
-    	  byte[] smallBuffer = buffer1.length < buffer2.length ? buffer1 : buffer2;
-    	  byte[] xoredBuffer = new byte[bigBuffer.length];
-          for (int i = 0; i < smallBuffer.length; i++)
-          {
-              xoredBuffer[i] = (byte)(bigBuffer[i] ^ smallBuffer[i]);
-          }
+//      public static byte[] XOR(byte[] buffer1, byte[] buffer2)
+//      {
+//    	  byte[] bigBuffer = buffer1.length < buffer2.length ? buffer2 : buffer1;
+//    	  byte[] smallBuffer = buffer1.length < buffer2.length ? buffer1 : buffer2;
+//    	  byte[] xoredBuffer = new byte[bigBuffer.length];
+//          for (int i = 0; i < smallBuffer.length; i++)
+//          {
+//              xoredBuffer[i] = (byte)(bigBuffer[i] ^ smallBuffer[i]);
+//          }
+//
+//          int leftBytesStartIndex = smallBuffer.length;
+//          int leftBytesLength = bigBuffer.length - smallBuffer.length;
+//          System.arraycopy(bigBuffer, leftBytesStartIndex, xoredBuffer, smallBuffer.length, leftBytesLength);
+//
+//          return xoredBuffer;
+//      }
+	  public static byte[] XOR(byte[] a, byte[] b) {
+		  byte[] result = new byte[Math.min(a.length, b.length)];
 
-          int leftBytesStartIndex = smallBuffer.length;
-          int leftBytesLength = bigBuffer.length - smallBuffer.length;
-          System.arraycopy(bigBuffer, leftBytesStartIndex, xoredBuffer, smallBuffer.length, leftBytesLength);
+		  for (int i = 0; i < result.length; i++) {
+		    result[i] = (byte) (((int) a[i]) ^ ((int) b[i]));
+		  }
 
-          return xoredBuffer;
-      }
+		  return result;
+		}
 
       public static byte[] Pad(byte[] buffer, byte paddingByte, int paddingLength)
       {

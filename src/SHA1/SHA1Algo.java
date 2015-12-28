@@ -16,7 +16,7 @@ public class SHA1Algo {
         byte[] chunk = new byte[BLOCK_SIZE_IN_BYTES];
         byte[] finalResult = new byte[0];
         byte[] temp;
-        int i = 0;
+ 
         
         if (paddedMsg.length % 64 != 0) {
             System.out.println("Invalid padded data length.");
@@ -26,7 +26,7 @@ public class SHA1Algo {
         int passesReq = paddedMsg.length / 64;
 
         for (int passCntr = 0; passCntr < passesReq; passCntr++) {
-            System.arraycopy(paddedMsg, 64 * passCntr, chunk, 0, 64);
+            System.arraycopy(paddedMsg, BLOCK_SIZE_IN_BYTES * passCntr, chunk, 0, BLOCK_SIZE_IN_BYTES);
             resultsArray = HandleChunk(resultsArray, chunk);
         }
         
@@ -74,52 +74,71 @@ public class SHA1Algo {
 
     private int[] HandleChunk(int[] currentResults, byte[] chunk)
     {
-    	int[] extendedArray = ExtendedChunkAndConvertToUintArray(chunk);
-
-    	int a = currentResults[0];
-    	int b = currentResults[1];
-    	int c = currentResults[2];
-    	int d = currentResults[3];
-    	int e = currentResults[4];
-
-        for (int i = 0; i <= 79; i++)
-        {
-        	int f;
-        	int k;
-            if (0 <= i && i <= 19)
-            {
-                f = (b & c) | ((~b) & d);
-                k = 0x5A827999;
+    	int temp;
+ 	    int A, B, C, D, E;
+        int[] K = {0x5A827999, 0x6ED9EBA1, 0x8F1BBCDC, 0xCA62C1D6};
+ 	    int F;
+    	int[] W = new int[80];
+        for (int outer = 0; outer < 16; outer++) {
+            temp = 0;
+            for (int inner = 0; inner < 4; inner++) {
+                temp = (chunk[outer * 4 + inner] & 0x000000FF) << (24 - inner * 8);
+                W[outer] = W[outer] | temp;
             }
-            else if (20 <= i && i <= 39)
-            {
-                f = b ^ c ^ d;
-                k = 0x6ED9EBA1;
-            }
-            else if (40 <= i && i <= 59)
-            {
-                f = (b & c) | (b & d) | (c & d);
-                k = 0x8F1BBCDC;
-            }
-            else
-            {
-                f = b ^ c ^ d;
-                k = 0xCA62C1D6;
-            }
-
-            int temp = LeftRotate(a, 5) + f + e + k + extendedArray[i];
-            e = d;
-            d = c;
-            c = LeftRotate(b, 30);
-            b = a;
-            a = temp;
         }
 
-        currentResults[0] += a;
-        currentResults[1] += b;
-        currentResults[2] += c;
-        currentResults[3] += d;
-        currentResults[4] += e;
+        for (int j = 16; j < 80; j++) {
+            W[j] = rotateLeft(W[j - 3] ^ W[j - 8] ^ W[j - 14] ^ W[j - 16], 1);
+        }
+
+        A = currentResults[0];
+        B = currentResults[1];
+        C = currentResults[2];
+        D = currentResults[3];
+        E = currentResults[4];
+
+        for (int j = 0; j < 80; j++) {
+        	if ( j < 20) {
+	            F = (B & C) | ((~B) & D);
+	            //	K = 0x5A827999;
+	            temp = rotateLeft(A, 5) + F + E + K[0] + W[j];
+	     
+	        } else if ( j < 40) {
+	            F = B ^ C ^ D;
+	            //   K = 0x6ED9EBA1;
+	            temp = rotateLeft(A, 5) + F + E + K[1] + W[j];
+	  
+	        } else if ( j < 60) {
+	            F = (B & C) | (B & D) | (C & D);
+	            //   K = 0x8F1BBCDC;
+	            temp = rotateLeft(A, 5) + F + E + K[2] + W[j];
+	  
+	        } else {
+	            F = B ^ C ^ D;
+	            //   K = 0xCA62C1D6;
+	            temp = rotateLeft(A, 5) + F + E + K[3] + W[j];
+	        }
+        	
+            E = D;
+            D = C;
+            C = rotateLeft(B, 30);
+            B = A;
+            A = temp;
+        }
+
+        currentResults[0] += A;
+        currentResults[1] += B;
+        currentResults[2] += C;
+        currentResults[3] += D;
+        currentResults[4] += E;
+    	
+    	
+    	
+//        currentResults[0] += a;
+//        currentResults[1] += b;
+//        currentResults[2] += c;
+//        currentResults[3] += d;
+//        currentResults[4] += e;
 
         return currentResults;
     }
@@ -147,53 +166,11 @@ public class SHA1Algo {
 
     private int LeftRotate(int word, int numOfBits)
     {
-        return word << numOfBits | word >> (32 - numOfBits);
+         int q = (word << numOfBits | word >> (32 - numOfBits));
+         return q;
     }
     
     
-    // utils
-    private String intArrayToHexStr(int[] data) {
-        String output = "";
-        String tempStr = "";
-        int tempInt = 0;
-        for (int cnt = 0; cnt < data.length; cnt++) {
-
-            tempInt = data[cnt];
-
-            tempStr = Integer.toHexString(tempInt);
-
-            if (tempStr.length() == 1) {
-                tempStr = "0000000" + tempStr;
-            } else if (tempStr.length() == 2) {
-                tempStr = "000000" + tempStr;
-            } else if (tempStr.length() == 3) {
-                tempStr = "00000" + tempStr;
-            } else if (tempStr.length() == 4) {
-                tempStr = "0000" + tempStr;
-            } else if (tempStr.length() == 5) {
-                tempStr = "000" + tempStr;
-            } else if (tempStr.length() == 6) {
-                tempStr = "00" + tempStr;
-            } else if (tempStr.length() == 7) {
-                tempStr = "0" + tempStr;
-            }
-            output = output + tempStr;
-        }//end for loop
-        return output;
-    }//end intArrayToHexStr
-    //-------------------------------------------//
-
-//    static final String toHexString( ByteBuffer bb) {
-//        final StringBuffer sb = new StringBuffer();
-//        for (int i = 0; i < bb.limit(); i += 4) {
-//            if (i % 4 == 0) {
-//                sb.append('\n');
-//            }
-//            sb.append(toHexString(bb.getInt(i))).append(' ');
-//        }
-//        sb.append('\n');
-//        return sb.toString();
-//    }
     
     public static final byte[] intToByteArray(int value) {
         return new byte[] {
@@ -213,5 +190,9 @@ public class SHA1Algo {
             return s.substring(s.length() - 8);
         }
         return ZEROS.substring(s.length()) + s;
+    }
+    final int rotateLeft(int value, int bits) {
+    	 return (value << bits) | (value >>> (32 - bits));
+        
     }
 }

@@ -43,6 +43,7 @@ public class HmacAlgo {
     
     private static byte[] GetASCIIBytes(String str)
     {
+    	
     	byte[] text = str.getBytes(StandardCharsets.US_ASCII);
         return text;
     }
@@ -51,19 +52,19 @@ public class HmacAlgo {
     {
         byte[] textBuffer = GetASCIIBytes(message);
 
-        byte[] keyXorInnerPadAndText = new byte[ipad.length + textBuffer.length];
-        System.arraycopy(ipad, 0, keyXorInnerPadAndText, 0, ipad.length);
-        System.arraycopy(textBuffer, 0, keyXorInnerPadAndText, ipad.length, textBuffer.length);
+   //     byte[] keyXorInnerPadAndText = new byte[ipad.length + textBuffer.length];
+//        System.arraycopy(ipad, 0, keyXorInnerPadAndText, 0, ipad.length);
+//        System.arraycopy(textBuffer, 0, keyXorInnerPadAndText, ipad.length, textBuffer.length);
         
-  //      byte[]  keyXorInnerPadAndText = ipad.Concat(textBuffer); // Step 5
+        byte[]  keyXorInnerPadAndText = ByteArrayUtils.Concat(ipad, textBuffer); // Step 5
 
         byte[] keyXorInnerPadAndTextHahed = Hash(keyXorInnerPadAndText); // Step 6
 
-        byte[] keyXorOuterPadAndKeyXorInnerpadAndTextHahed = new byte[opad.length + keyXorInnerPadAndTextHahed.length];
-        System.arraycopy(opad, 0, keyXorOuterPadAndKeyXorInnerpadAndTextHahed, 0, opad.length);
-        System.arraycopy(keyXorInnerPadAndTextHahed, 0, keyXorOuterPadAndKeyXorInnerpadAndTextHahed, opad.length, keyXorInnerPadAndTextHahed.length);
+//        byte[] keyXorOuterPadAndKeyXorInnerpadAndTextHahed = new byte[opad.length + keyXorInnerPadAndTextHahed.length];
+//        System.arraycopy(opad, 0, keyXorOuterPadAndKeyXorInnerpadAndTextHahed, 0, opad.length);
+//        System.arraycopy(keyXorInnerPadAndTextHahed, 0, keyXorOuterPadAndKeyXorInnerpadAndTextHahed, opad.length, keyXorInnerPadAndTextHahed.length);
         
-        //byte[] keyXorOuterPadAndKeyXorInnerpadAndTextHahed = opad.Concat(keyXorInnerPadAndTextHahed); // Step 8
+        byte[] keyXorOuterPadAndKeyXorInnerpadAndTextHahed =  ByteArrayUtils.Concat(opad, keyXorInnerPadAndTextHahed);// Step 8
 
         byte[] mac = Hash(keyXorOuterPadAndKeyXorInnerpadAndTextHahed); // Step 9
 
@@ -90,7 +91,7 @@ public class HmacAlgo {
         	keyBuffer = new byte[20];
         	keyBuffer = hashedKeyBuffer;
         
-        	//   keyBuffer = hashedKeyBuffer.Pad(0, SHA1_BLOCK_SIZE - hashedKeyBuffer.length);
+        	keyBuffer = ByteArrayUtils.Pad(hashedKeyBuffer,(byte)0, SHA1_BLOCK_SIZE - hashedKeyBuffer.length);
         }
         else if (inputKeyBuffer.length < SHA1_BLOCK_SIZE) // Step 3
         {      	
@@ -99,7 +100,7 @@ public class HmacAlgo {
     			System.arraycopy(inputKeyBuffer, 0, tmpKey, 0, inputKeyBuffer.length);
     			keyBuffer = new byte[SHA1_BLOCK_SIZE];
     			keyBuffer = tmpKey;
-           // keyBuffer = inputKeyBuffer.Pad(0, SHA1_BLOCK_SIZE - inputKeyBuffer.length);
+    			keyBuffer = ByteArrayUtils.Pad(inputKeyBuffer, (byte)0, SHA1_BLOCK_SIZE - inputKeyBuffer.length);
         }
 
         return keyBuffer;
