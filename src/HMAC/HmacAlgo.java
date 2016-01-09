@@ -26,20 +26,10 @@ public class HmacAlgo {
 
         keyArray = HandleKey(GetASCIIBytes(key)); // Step 1-3
         // GET INNER AND OUTER PAD
-	      //  ipad = getPad(keyArray, INNER_PAD);
-	       // opad = getPad(keyArray, OUTER_PAD);
 		
         ipad = ByteArrayUtils.XOR(keyArray, ByteArrayUtils.CreatePaddingBuffer(INNER_PAD, SHA1_BLOCK_SIZE)); // Step 4
         opad = ByteArrayUtils.XOR(keyArray, ByteArrayUtils.CreatePaddingBuffer(OUTER_PAD, SHA1_BLOCK_SIZE)); // Step 7
     }
-
-//    private static byte[] getPad(byte[] keyArray, byte pad){
-//    	byte[] resultPad = new byte[SHA1_BLOCK_SIZE];
-//		for (int j = 0; j < resultPad.length; j++) {
-//			resultPad[j] = (byte) (((int) keyArray[j]) ^ ((int) pad));
-//		}
-//    	return resultPad;
-//    }
     
     private static byte[] GetASCIIBytes(String str)
     {
