@@ -1,6 +1,6 @@
 package ArrayUtils;
 
-public class ByteArrayUtils {
+public class ByteArrayUtilsFunctions {
 	  public static byte[] Concat(byte[] buffer1, byte[] buffer2)
       {
 		  byte[] concatedArray = new byte[buffer1.length + buffer2.length];
@@ -10,22 +10,12 @@ public class ByteArrayUtils {
           
       }
 
-//      public static byte[] XOR(byte[] buffer1, byte[] buffer2)
-//      {
-//    	  byte[] bigBuffer = buffer1.length < buffer2.length ? buffer2 : buffer1;
-//    	  byte[] smallBuffer = buffer1.length < buffer2.length ? buffer1 : buffer2;
-//    	  byte[] xoredBuffer = new byte[bigBuffer.length];
-//          for (int i = 0; i < smallBuffer.length; i++)
-//          {
-//              xoredBuffer[i] = (byte)(bigBuffer[i] ^ smallBuffer[i]);
-//          }
-//
-//          int leftBytesStartIndex = smallBuffer.length;
-//          int leftBytesLength = bigBuffer.length - smallBuffer.length;
-//          System.arraycopy(bigBuffer, leftBytesStartIndex, xoredBuffer, smallBuffer.length, leftBytesLength);
-//
-//          return xoredBuffer;
-//      }
+	  /**
+	   * Xors 2 byte arrays.
+	   * @param a
+	   * @param b
+	   * @return
+	   */
 	  public static byte[] XOR(byte[] a, byte[] b) {
 		  byte[] result = new byte[Math.min(a.length, b.length)];
 
@@ -36,11 +26,24 @@ public class ByteArrayUtils {
 		  return result;
 		}
 
+	  /**
+	   * Add padding to a byte array.
+	   * @param buffer
+	   * @param paddingByte
+	   * @param paddingLength
+	   * @return
+	   */
       public static byte[] Pad(byte[] buffer, byte paddingByte, int paddingLength)
       {
           return Concat(buffer, CreatePaddingBuffer(paddingByte, paddingLength));
       }
 
+      /**
+       * Create a padding buffer.
+       * @param paddingByte
+       * @param paddingLength
+       * @return
+       */
       public static byte[] CreatePaddingBuffer(byte paddingByte, int paddingLength)
       {
     	  byte[] pading = new byte[paddingLength];
@@ -50,13 +53,4 @@ public class ByteArrayUtils {
     	  
           return pading;
       }
-
-    //  public static byte[] Chunk(Iterable<Byte> source, int chunkSize)
-     // {
-      //    while (source.Aany())
-       //   {
-        //      yield return source.Take(chunkSize).ToArray();
-         //     source = source.Skip(chunkSize);
-          //}
-      //}
 }

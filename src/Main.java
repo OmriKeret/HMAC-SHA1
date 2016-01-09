@@ -4,12 +4,11 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.PrintWriter;
 import java.util.Base64;
-import HMAC.HMACCommands;
 import HMAC.HmacAlgo;
 
 public class Main {
 
-	private final static String USAGE_MESSAGE = "USAGE: HMAC.Console.exe <input file> <digest file> <key file> <compute | verify>";
+	private final static String USAGE_MESSAGE = "USAGE:  java -jar hmac.jar <input file> <digest file> <key file> <compute | verify>";
 	private final static String Compute = "compute";
 	private final static String Verify = "verify";
 	public static void main(String[] args) {
@@ -35,7 +34,7 @@ public class Main {
 						WriteToDigestFile(digestFilePath, hmacUtil.Compute(message));
 						break;
 					case Verify:
-						if (hmacUtil.Verifty(message, ReadFromDigestFile(digestFilePath))) { 
+						if (hmacUtil.Verify(message, ReadFromDigestFile(digestFilePath))) { 
 							System.out.println("ACCEPT");
 						} else { 
 							System.out.println("REJECT");
@@ -94,7 +93,6 @@ public class Main {
 		PrintWriter out = new PrintWriter(digestFilePath);
 		out.print(Base64.getEncoder().encodeToString(mac));
 		out.flush();
-		// File.WriteAllText(digestFilePath, Convert.ToBase64String(mac));
 	}
 
 	private static String ParseCommand(String commandString) throws Exception
